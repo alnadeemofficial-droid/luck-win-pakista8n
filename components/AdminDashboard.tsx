@@ -225,29 +225,9 @@ const AdminDashboard: React.FC<Props> = ({
     setAnnouncements(prev => prev.map(a => a.id === id ? { ...a, active: !a.active } : a));
   };
 
-  const [captcha, setCaptcha] = useState({ q: '', a: 0 });
-  const [captchaInput, setCaptchaInput] = useState('');
-
-  useEffect(() => {
-    generateCaptcha();
-  }, []);
-
-  const generateCaptcha = () => {
-    const n1 = Math.floor(Math.random() * 10) + 1;
-    const n2 = Math.floor(Math.random() * 10) + 1;
-    setCaptcha({ q: `${n1} + ${n2}`, a: n1 + n2 });
-    setCaptchaInput('');
-  };
-
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (parseInt(captchaInput) !== captcha.a) {
-        alert('Incorrect Captcha! Please try again.');
-        generateCaptcha();
-        return;
-    }
-
     try {
       // Use the server proxy instead of direct URL
       const response = await fetch('/api/admin/login', {
@@ -313,24 +293,6 @@ const AdminDashboard: React.FC<Props> = ({
                 placeholder="••••••••"
                 className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none font-bold text-lg transition-all text-center"
               />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">سیکیورٹی کوڈ (Security Code)</label>
-              <div className="flex gap-2">
-                <div className="flex-1 p-4 bg-gray-100 rounded-2xl font-black text-center text-gray-500 select-none tracking-widest text-lg">
-                   {captcha.q} = ?
-                </div>
-                <input 
-                  type="number" 
-                  value={captchaInput}
-                  onChange={e => setCaptchaInput(e.target.value)}
-                  placeholder="?"
-                  className="w-24 p-4 bg-gray-50 border-2 border-transparent focus:border-green-500 rounded-2xl outline-none font-bold text-lg transition-all text-center"
-                />
-                <button type="button" onClick={generateCaptcha} className="p-4 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all">
-                  <TrendingUp className="w-5 h-5 text-gray-500 rotate-180" />
-                </button>
-              </div>
             </div>
             <button type="submit" className="w-full py-5 bg-green-600 text-white rounded-2xl font-black shadow-xl shadow-green-100 hover:bg-green-700 active:scale-95 transition-all uppercase tracking-widest text-sm">
               ایکسیس حاصل کریں

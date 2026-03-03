@@ -9,7 +9,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Proxy requests to Google Apps Script
 // IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxggkuk9_INl85Pc7dsqmI8WUhex38OmgA9759Vk5J67JccXsT0szE2rW6e1kZjQQ4p/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrc2ce_jHfZPYu_VX0gg5Z45NmuB_T-4YniBP16Z8Ysbhs__nIjGo384e-AJUZC47w/exec";
 // const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL ? process.env.GOOGLE_SCRIPT_URL.trim() : "";
 
 if (!GOOGLE_SCRIPT_URL) {

@@ -409,62 +409,35 @@ function saveTerms(ss, data) {
 }
 
 function handleLogin(ss, data) {
-  var cache = CacheService.getScriptCache();
-  var inputUser = String(data.username || '').trim();
-  var inputPass = String(data.password || '').trim();
-  
-  // Security: Brute Force Protection
-  var attemptsKey = 'login_attempts_' + inputUser;
-  var blockKey = 'login_block_' + inputUser;
-  
-  if (cache.get(blockKey)) {
-    return { status: 'error', message: 'Account locked due to too many failed attempts. Try again in 15 minutes.' };
-  }
-
   var sheet = getOrCreateSheet(ss, 'Admin');
   var values = sheet.getDataRange().getValues();
   
-  // Default check if sheet is empty (should have been created by getOrCreateSheet)
+  // Check if we have data rows
   if (values.length < 2) {
-     // If empty, re-initialize default
-     sheet.appendRow(['admin', 'admin123']);
-     return { status: 'success', message: 'Default credentials restored. Login with admin/admin123' };
+     return { status: 'error', message: 'Admin credentials not set in sheet.' };
   }
 
-  var storedUser = String(values[1][0]).trim();
-  var storedPass = String(values[1][1]).trim();
+  // Dynamic Column Mapping
+  var headers = values[0];
+  var userIndex = headers.indexOf('Username');
+  var passIndex = headers.indexOf('Password');
+  
+  // Fallback to default columns if headers are missing/changed
+  if (userIndex === -1) userIndex = 0;
+  if (passIndex === -1) passIndex = 1;
 
-  // Self-healing: If stored credentials are empty or look broken, restore defaults
-  if (!storedUser || !storedPass) {
-      sheet.getRange(2, 1, 1, 2).setValues([['admin', 'admin123']]);
-      return { status: 'success', message: 'Credentials were corrupted. Restored to default: admin / admin123' };
-  }
+  // Get stored credentials directly from sheet (Row 2)
+  var storedUser = String(values[1][userIndex]);
+  var storedPass = String(values[1][passIndex]);
+  
+  // Get input credentials
+  var inputUser = String(data.username || '');
+  var inputPass = String(data.password || '');
 
-  // Case-insensitive username check
-  if (inputUser.toLowerCase() === storedUser.toLowerCase() && inputPass === storedPass) {
-    // Reset attempts on success
-    cache.remove(attemptsKey);
-    
-    // Professional Feature: Log the last login time to the sheet
-    var timestamp = new Date().toLocaleString();
-    // Check if header exists, if not add it
-    if (values[0].length < 3 || values[0][2] !== 'Last Login') {
-        sheet.getRange(1, 3).setValue("Last Login"); 
-    }
-    // Update the timestamp in the 2nd row, 3rd column
-    sheet.getRange(2, 3).setValue(timestamp);
-
+  // Strict comparison (trimming whitespace is safe practice)
+  if (inputUser.trim() === storedUser.trim() && inputPass.trim() === storedPass.trim()) {
     return { status: 'success', message: 'Login successful' };
   }
   
-  // Handle failed attempt
-  var attempts = Number(cache.get(attemptsKey) || 0) + 1;
-  cache.put(attemptsKey, String(attempts), 900); // Store for 15 min
-  
-  if (attempts >= 5) {
-    cache.put(blockKey, 'true', 900); // Block for 15 min
-    return { status: 'error', message: 'Too many failed attempts. Account locked for 15 minutes.' };
-  }
-  
-  return { status: 'error', message: 'Invalid credentials. Attempts remaining: ' + (5 - attempts) };
+  return { status: 'error', message: 'Invalid credentials' };
 }
