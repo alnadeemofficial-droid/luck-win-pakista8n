@@ -1,0 +1,7 @@
+{
+  "name": "Luck Win - Pakistan Luck Draw",
+  "description": "ایک ایسی ویب سائٹ جہاں آپ تھوڑی سی انویسٹمنٹ سے بڑے انعامات جیت سکتے ہیں اور شفاف قرعہ اندازی کے ذریعے اپنی قسمت آزما سکتے ہیں۔",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
