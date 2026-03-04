@@ -9,7 +9,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Proxy requests to Google Apps Script
 // IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrc2ce_jHfZPYu_VX0gg5Z45NmuB_T-4YniBP16Z8Ysbhs__nIjGo384e-AJUZC47w/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygTqF2SthTtFhZ62zOFEj7gU_Q_bWLhBHOGZ3ZSO6FXNDerozd6Mr38vg1j9ReDEA9/exec";
 // const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL ? process.env.GOOGLE_SCRIPT_URL.trim() : "";
 
 if (!GOOGLE_SCRIPT_URL) {
@@ -211,6 +211,16 @@ app.post("/api/admin/login", async (req, res) => {
     res.json(result);
   } catch (e: any) {
     console.error("Error in /api/admin/login:", e);
+    res.status(500).json({ status: 'error', message: e.toString() });
+  }
+});
+
+app.post("/api/admin/update-credentials", async (req, res) => {
+  try {
+    const result = await callAppsScript('updateAdminCredentials', req.body);
+    res.json(result);
+  } catch (e: any) {
+    console.error("Error in /api/admin/update-credentials:", e);
     res.status(500).json({ status: 'error', message: e.toString() });
   }
 });

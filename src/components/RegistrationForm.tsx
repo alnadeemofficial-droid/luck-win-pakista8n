@@ -260,7 +260,7 @@ const RegistrationForm: React.FC<Props> = ({ tier, onClose, onRegister, lang, on
               <div className="space-y-3">
                 {[
                   t.agree1, 
-                  t.agree2.replace('10', tier.investAmount.toString()), 
+                  t.agree2.replace('10', String(tier.investAmount || 0)), 
                   t.agree3
                 ].map((text, idx) => (
                   <div key={idx} onClick={() => toggleAgreement(idx)} className={`p-4 rounded-2xl border-2 flex items-center gap-4 cursor-pointer transition-all ${formData.agreements[idx] ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}>

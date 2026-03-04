@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Users, CheckCircle, XCircle, Search, Plus, Trash2, QrCode, Image as ImageIcon, BellPlus, Edit3, Save, X, FastForward, Play, Pause, ArrowLeft, Phone, Network, Trophy, TrendingUp, ShieldCheck
+  Users, CheckCircle, XCircle, Search, Plus, Trash2, QrCode, Image as ImageIcon, BellPlus, Edit3, Save, X, FastForward, Play, Pause, ArrowLeft, Phone, Network, Trophy, TrendingUp, ShieldCheck, Settings
 } from 'lucide-react';
 import { Participant, EntryStatus, Announcement, InvestmentOption, AdService, TermCondition, GlobalAd } from '../types';
 
@@ -314,7 +314,7 @@ const AdminDashboard: React.FC<Props> = ({
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-grow">
-          {['users', 'awaiting_tid', 'tiers', 'ads', 'global_ads', 'terms', 'announcement', 'stats', 'completed', 'calculator'].map(tab => (
+          {['users', 'awaiting_tid', 'tiers', 'ads', 'global_ads', 'terms', 'announcement', 'stats', 'completed', 'calculator', 'settings'].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === tab ? 'bg-green-600 text-white shadow-lg' : 'bg-white border text-gray-500'}`}>
               {tab === 'users' ? 'درخواستیں' : 
                tab === 'awaiting_tid' ? 'بغیر TID درخواستیں' : 
@@ -325,7 +325,8 @@ const AdminDashboard: React.FC<Props> = ({
                tab === 'announcement' ? 'اناؤنسمنٹ پٹی' : 
                tab === 'stats' ? 'کارڈ شماریات' : 
                tab === 'completed' ? 'مکمل کارڈز (Draw)' : 
-               tab === 'calculator' ? 'منافع کیلکولیٹر' : ''}
+               tab === 'calculator' ? 'منافع کیلکولیٹر' : 
+               'سیٹنگز'}
             </button>
           ))}
         </div>
@@ -1314,6 +1315,83 @@ const AdminDashboard: React.FC<Props> = ({
             }).length === 0 && (
               <div className="col-span-full p-20 text-center text-gray-300 italic">کوئی مکمل کارڈ نہیں ملا</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="bg-white p-6 rounded-[32px] border shadow-sm space-y-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              <Settings className="w-5 h-5 text-gray-600" />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 nastaliq">ایڈمن سیٹنگز (Admin Settings)</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-50 rounded-2xl border space-y-4">
+               <h4 className="font-bold text-sm text-gray-700">ایڈمن یوزر نیم اور پاسورڈ تبدیل کریں (Change Credentials)</h4>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <input 
+                   type="text" 
+                   placeholder="نیا یوزر نیم" 
+                   id="new-admin-user"
+                   className="p-3 bg-white border rounded-xl text-sm font-bold outline-none focus:border-green-500"
+                 />
+                 <input 
+                   type="text" 
+                   placeholder="نیا پاسورڈ" 
+                   id="new-admin-pass"
+                   className="p-3 bg-white border rounded-xl text-sm font-bold outline-none focus:border-green-500"
+                 />
+               </div>
+               <button 
+                 onClick={async () => {
+                    const user = (document.getElementById('new-admin-user') as HTMLInputElement).value;
+                    const pass = (document.getElementById('new-admin-pass') as HTMLInputElement).value;
+                    if(!user || !pass) return alert('برائے مہربانی دونوں فیلڈز پُر کریں');
+                    
+                    try {
+                        const res = await fetch('/api/admin/update-credentials', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ newUsername: user, newPassword: pass })
+                        });
+                        const data = await res.json();
+                        if(data.status === 'success') alert('کریڈینشلز اپ ڈیٹ ہو گئے!');
+                        else alert('Error: ' + data.message);
+                    } catch(e) {
+                        alert('نیٹ ورک ایرر');
+                    }
+                 }}
+                 className="px-6 py-2 bg-green-600 text-white rounded-xl font-bold text-xs shadow-lg hover:bg-green-700 active:scale-95 transition-all"
+               >
+                 کریڈینشلز اپ ڈیٹ کریں
+               </button>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl border space-y-4">
+               <h4 className="font-bold text-sm text-gray-700">لوگو لانگ پریس دورانیہ (سیکنڈز)</h4>
+               <div className="flex items-center gap-4">
+                 <input 
+                   type="number" 
+                   defaultValue={localStorage.getItem('admin_long_press_duration') || 3}
+                   id="long-press-duration"
+                   className="p-3 bg-white border rounded-xl text-sm font-bold outline-none focus:border-green-500 w-24 text-center"
+                 />
+                 <button 
+                   onClick={() => {
+                      const dur = (document.getElementById('long-press-duration') as HTMLInputElement).value;
+                      localStorage.setItem('admin_long_press_duration', dur);
+                      alert('دورانیہ محفوظ ہو گیا! (اپلائی کرنے کے لیے پیج ریفریش کریں)');
+                   }}
+                   className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-lg hover:bg-blue-700 active:scale-95 transition-all"
+                 >
+                   محفوظ کریں
+                 </button>
+               </div>
+               <p className="text-[10px] text-gray-400">یہ سیٹنگ فی الحال آپ کے براؤزر میں محفوظ ہوگی۔</p>
+            </div>
           </div>
         </div>
       )}
